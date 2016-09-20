@@ -1,12 +1,10 @@
-package org.pac4j.demo.spring.config;
+package org.pac4j.demo.spring;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import org.pac4j.cas.client.CasClient;
-import org.pac4j.cas.logout.CasSingleSignOutHandler;
-import org.pac4j.core.authorization.RequireAnyRoleAuthorizer;
+import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
-import org.pac4j.demo.spring.authorizer.CustomAuthorizer;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.http.client.direct.ParameterClient;
 import org.pac4j.http.client.indirect.FormClient;
@@ -15,14 +13,13 @@ import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordA
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator;
 import org.pac4j.oauth.client.FacebookClient;
 import org.pac4j.oauth.client.TwitterClient;
-import org.pac4j.oidc.client.OidcClient;
+import org.pac4j.oidc.client.GoogleOidcClient;
+import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.client.SAML2ClientConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.File;
 
 @Configuration
 public class Pac4jConfig {
@@ -32,12 +29,25 @@ public class Pac4jConfig {
 
     @Bean
     public Config config() {
-        final OidcClient oidcClient = new OidcClient();
-        oidcClient.setClientID("343992089165-sp0l1km383i8cbm2j5nn20kbk5dk8hor.apps.googleusercontent.com");
-        oidcClient.setSecret("uR3D8ej1kIRPbqAFaxIE3HWh");
-        oidcClient.setDiscoveryURI("https://accounts.google.com/.well-known/openid-configuration");
-        oidcClient.setPreferredJwsAlgorithm(JWSAlgorithm.PS384);
-        oidcClient.addCustomParam("prompt", "consent");
+        /*final OidcConfiguration oidcConfiguration = new OidcConfiguration();
+        oidcConfiguration.setClientId("test");
+        oidcConfiguration.setSecret("secret");
+        oidcConfiguration.setUseNonce(true);
+        oidcConfiguration.setDiscoveryURI("http://localhost:5000/.well-known/openid-configuration");
+        oidcConfiguration.setScope("openid api1");
+        oidcConfiguration.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+        oidcConfiguration.addCustomParam("prompt", "consent");
+        final OidcClient oidcClient = new OidcClient(oidcConfiguration);
+        oidcClient.setName("test");
+        oidcClient.setCallbackUrl("http://localhost:8080/callback");*/
+
+        final OidcConfiguration oidcConfiguration = new OidcConfiguration();
+        oidcConfiguration.setClientId("167480702619-8e1lo80dnu8bpk3k0lvvj27noin97vu9.apps.googleusercontent.com");
+        oidcConfiguration.setSecret("MhMme_Ik6IH2JMnAT6MFIfee");
+        oidcConfiguration.setPreferredJwsAlgorithm(JWSAlgorithm.PS384);
+        oidcConfiguration.addCustomParam("prompt", "consent");
+        final GoogleOidcClient oidcClient = new GoogleOidcClient(oidcConfiguration);
+        oidcClient.setAuthorizationGenerator(profile -> profile.addRole("ROLE_ADMIN"));
 
         final SAML2ClientConfiguration cfg = new SAML2ClientConfiguration("resource:samlKeystore.jks",
                 "pac4j-demo-passwd",
